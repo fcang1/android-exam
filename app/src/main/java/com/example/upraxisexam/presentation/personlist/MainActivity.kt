@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.upraxisexam.BuildConfig
 import com.example.upraxisexam.R
 import com.example.upraxisexam.data.api.service.PersonsService
+import com.example.upraxisexam.data.database.PersonDatabase
 import com.example.upraxisexam.data.repository.personlist.PersonsLocalDataSourceImpl
 import com.example.upraxisexam.data.repository.personlist.PersonsRemoteDataSourceImpl
 import com.example.upraxisexam.data.repository.personlist.PersonsRepositoryImpl
@@ -31,6 +32,8 @@ class MainActivity : AppCompatActivity() {
             DataBindingUtil.setContentView<ActivityMainBinding>(this, R.layout.activity_main)
 
         // TODO: Use dependency injection
+        val personDatabaseDao = PersonDatabase.getInstance(applicationContext).personDatabaseDao
+        val personsLocalDataSource = PersonsLocalDataSourceImpl(personDatabaseDao)
         val networkConnectionInterceptor = NetworkConnectionInterceptor(applicationContext)
         val retrofit =
             Retrofit.Builder()
@@ -39,7 +42,6 @@ class MainActivity : AppCompatActivity() {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()
         val personsService = retrofit.create(PersonsService::class.java)
-        val personsLocalDataSource = PersonsLocalDataSourceImpl()
         val personsRemoteDataSource = PersonsRemoteDataSourceImpl(personsService)
         val personsRepository = PersonsRepositoryImpl(
             personsLocalDataSource,
@@ -73,5 +75,9 @@ class MainActivity : AppCompatActivity() {
             }
         }
         personListViewModel.getPersons()
+
+        binding.helloWorldTextView.setOnClickListener {
+            personListViewModel.refreshPersons()
+        }
     }
 }

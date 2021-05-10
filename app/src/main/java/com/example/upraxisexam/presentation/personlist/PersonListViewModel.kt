@@ -32,6 +32,17 @@ class PersonListViewModel(
         }
     }
 
+    fun refreshPersons() {
+        viewModelScope.launch {
+            resourceMutableLiveData.value = Resource.Loading(tempPersons)
+            val resourcePersons = refreshPersonsUseCase()
+            resourcePersons.data?.let {
+                tempPersons = it
+            }
+            resourceMutableLiveData.value = resourcePersons
+        }
+    }
+
     fun onShowErrorMessageComplete() {
         resourceMutableLiveData.value = Resource.Success(tempPersons)
     }
