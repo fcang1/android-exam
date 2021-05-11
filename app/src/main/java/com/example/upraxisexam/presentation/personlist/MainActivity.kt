@@ -19,6 +19,7 @@ import com.example.upraxisexam.data.util.Resource
 import com.example.upraxisexam.databinding.ActivityMainBinding
 import com.example.upraxisexam.domain.usecase.personlist.GetPersonsUseCase
 import com.example.upraxisexam.domain.usecase.personlist.RefreshPersonsUseCase
+import com.example.upraxisexam.presentation.persondetails.PersonDetailsActivity
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -33,33 +34,33 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val binding =
-                DataBindingUtil.setContentView<ActivityMainBinding>(this, R.layout.activity_main)
+            DataBindingUtil.setContentView<ActivityMainBinding>(this, R.layout.activity_main)
 
         // TODO: Use dependency injection
         val personDatabaseDao = PersonDatabase.getInstance(applicationContext).personDatabaseDao
         val personsLocalDataSource = PersonsLocalDataSourceImpl(personDatabaseDao)
         val networkConnectionInterceptor = NetworkConnectionInterceptor(applicationContext)
         val retrofit =
-                Retrofit.Builder()
-                        .client(OkHttpClient.Builder().addInterceptor(networkConnectionInterceptor).build())
-                        .baseUrl(BuildConfig.API_BASE_URL)
-                        .addConverterFactory(GsonConverterFactory.create())
-                        .build()
+            Retrofit.Builder()
+                .client(OkHttpClient.Builder().addInterceptor(networkConnectionInterceptor).build())
+                .baseUrl(BuildConfig.API_BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
         val personsService = retrofit.create(PersonsService::class.java)
         val personsRemoteDataSource = PersonsRemoteDataSourceImpl(personsService)
         val personsRepository = PersonsRepositoryImpl(
-                personsLocalDataSource,
-                personsRemoteDataSource
+            personsLocalDataSource,
+            personsRemoteDataSource
         )
         val getPersonsUseCase = GetPersonsUseCase(personsRepository)
         val refreshPersonsUseCase = RefreshPersonsUseCase(personsRepository)
         val personListViewModelFactory = PersonListViewModelFactory(
-                getPersonsUseCase,
-                refreshPersonsUseCase
+            getPersonsUseCase,
+            refreshPersonsUseCase
         )
         personListViewModel = ViewModelProvider(
-                this,
-                personListViewModelFactory
+            this,
+            personListViewModelFactory
         ).get(PersonListViewModel::class.java)
 
         setSupportActionBar(binding.toolbar)
@@ -73,6 +74,7 @@ class MainActivity : AppCompatActivity() {
         binding.recyclerView.addItemDecoration(dividerItemDecoration)
         val personListAdapter = PersonListAdapter(PersonListListener {
 //            Log.e("item clicked", it.toString())
+            PersonDetailsActivity.start(this, it)
         })
         binding.recyclerView.adapter = personListAdapter
 
@@ -91,9 +93,9 @@ class MainActivity : AppCompatActivity() {
                     it.message?.run {
                         alertDialog?.dismiss()
                         alertDialog = AlertDialog.Builder(this@MainActivity)
-                                .setMessage(this)
-                                .setPositiveButton(android.R.string.ok, null)
-                                .create()
+                            .setMessage(this)
+                            .setPositiveButton(android.R.string.ok, null)
+                            .create()
                         alertDialog?.show()
 //                        personListViewModel.onShowErrorMessageComplete()
                     }

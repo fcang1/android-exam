@@ -50,7 +50,7 @@ class PersonsRepositoryImpl(
 
     private fun getAge(birthday: String?): Int? {
         birthday?.let { bDay ->
-            val simpleDateFormat = SimpleDateFormat("mm-dd-yyyy", Locale.US)
+            val simpleDateFormat = SimpleDateFormat("MM-dd-yyyy", Locale.US)
             simpleDateFormat.parse(bDay)?.let { bDate ->
                 return calculateAge(bDate)
             }
