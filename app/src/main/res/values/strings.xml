@@ -2,4 +2,6 @@
     <string name="app_name">uPraxis Exam</string>
     <string name="persons_list">Persons List</string>
     <string name="person_full_name">%1$s %2$s</string>
+    <string name="an_error_has_occurred">An error has occurred</string>
+    <string name="pull_down_to_refresh">Pull down to refresh</string>
 </resources>

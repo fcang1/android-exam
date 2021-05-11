@@ -1,6 +1,7 @@
 package com.example.upraxisexam.presentation.personlist
 
 import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
@@ -74,21 +75,25 @@ class MainActivity : AppCompatActivity() {
         binding.recyclerView.adapter = personListAdapter
 
         personListViewModel.resourceLiveData.observe(this) {
-            it.message?.run {
-                AlertDialog.Builder(this@MainActivity)
-                        .setMessage(this)
-                        .setPositiveButton(android.R.string.ok, null)
-                        .create()
-                        .show()
-                personListViewModel.onShowErrorMessageComplete()
-            }
-
             when (it) {
-                is Resource.Success, is Resource.Error -> {
+                is Resource.Success -> {
                     binding.swipeRefreshLayout.isRefreshing = false
+                    binding.errorMessageLayout.visibility = View.GONE
                 }
                 is Resource.Loading -> {
                     binding.swipeRefreshLayout.isRefreshing = true
+                }
+                is Resource.Error -> {
+                    binding.swipeRefreshLayout.isRefreshing = false
+                    binding.errorMessageLayout.visibility = View.VISIBLE
+                    it.message?.run {
+                        AlertDialog.Builder(this@MainActivity)
+                                .setMessage(this)
+                                .setPositiveButton(android.R.string.ok, null)
+                                .create()
+                                .show()
+//                        personListViewModel.onShowErrorMessageComplete()
+                    }
                 }
             }
         }
@@ -99,8 +104,10 @@ class MainActivity : AppCompatActivity() {
             personListAdapter.submitList(it)
             if (it.isEmpty()) {
                 personListViewModel.attemptToGetPersons()
+                binding.recyclerView.visibility = View.GONE
             } else {
                 personListViewModel.attemptedToGetPersons()
+                binding.recyclerView.visibility = View.VISIBLE
             }
         }
     }
