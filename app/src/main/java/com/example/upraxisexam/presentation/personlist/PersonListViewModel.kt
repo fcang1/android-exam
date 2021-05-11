@@ -1,49 +1,45 @@
 package com.example.upraxisexam.presentation.personlist
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
+import com.example.upraxisexam.data.database.PersonEntity
 import com.example.upraxisexam.data.util.Resource
-import com.example.upraxisexam.domain.model.PersonItem
 import com.example.upraxisexam.domain.usecase.personlist.GetPersonsUseCase
 import com.example.upraxisexam.domain.usecase.personlist.RefreshPersonsUseCase
 import kotlinx.coroutines.launch
 
 class PersonListViewModel(
-    private val getPersonsUseCase: GetPersonsUseCase,
+    getPersonsUseCase: GetPersonsUseCase,
     private val refreshPersonsUseCase: RefreshPersonsUseCase
 ) : ViewModel() {
 
-    private val resourceMutableLiveData = MutableLiveData<Resource<List<PersonItem>>>()
-    val resourceLiveData: LiveData<Resource<List<PersonItem>>>
+    val personEntitiesLiveData: LiveData<List<PersonEntity>> = getPersonsUseCase().asLiveData()
+
+    private val resourceMutableLiveData = MutableLiveData<Resource<Any>>()
+    val resourceLiveData: LiveData<Resource<Any>>
         get() = resourceMutableLiveData
 
-    private var tempPersons = listOf<PersonItem>()
+    private var initialGetPersonFinished = false
 
-    fun getPersons() {
-        viewModelScope.launch {
-            resourceMutableLiveData.value = Resource.Loading(tempPersons)
-            val resourcePersons = getPersonsUseCase()
-            resourcePersons.data?.let {
-                tempPersons = it
-            }
-            resourceMutableLiveData.value = resourcePersons
+    fun attemptToGetPersons() {
+        if (!initialGetPersonFinished) {
+            refreshPersons()
         }
+        attemptedToGetPersons()
+    }
+
+    fun attemptedToGetPersons() {
+        initialGetPersonFinished = true
+    }
+
+    fun onShowErrorMessageComplete() {
+        resourceMutableLiveData.value = Resource.Success(Any())
     }
 
     fun refreshPersons() {
         viewModelScope.launch {
-            resourceMutableLiveData.value = Resource.Loading(tempPersons)
-            val resourcePersons = refreshPersonsUseCase()
-            resourcePersons.data?.let {
-                tempPersons = it
-            }
-            resourceMutableLiveData.value = resourcePersons
+            resourceMutableLiveData.value = Resource.Loading()
+            val resource = refreshPersonsUseCase()
+            resourceMutableLiveData.value = resource
         }
-    }
-
-    fun onShowErrorMessageComplete() {
-        resourceMutableLiveData.value = Resource.Success(tempPersons)
     }
 }

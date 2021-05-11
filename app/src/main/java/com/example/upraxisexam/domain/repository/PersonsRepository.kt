@@ -1,10 +1,11 @@
 package com.example.upraxisexam.domain.repository
 
+import com.example.upraxisexam.data.database.PersonEntity
 import com.example.upraxisexam.data.util.Resource
-import com.example.upraxisexam.domain.model.PersonItem
+import kotlinx.coroutines.flow.Flow
 
 interface PersonsRepository {
 
-    suspend fun getPersons(): Resource<List<PersonItem>>
-    suspend fun refreshPersons(): Resource<List<PersonItem>>
+    val personsFlow: Flow<List<PersonEntity>>
+    suspend fun refreshPersons(): Resource<Any>
 }

@@ -10,6 +10,7 @@ abstract class PersonDatabase : RoomDatabase() {
 
     abstract val personDatabaseDao: PersonDatabaseDao
 
+    // TODO: Use dependency injection
     companion object {
         @Volatile
         private var INSTANCE: PersonDatabase? = null
@@ -20,12 +21,12 @@ abstract class PersonDatabase : RoomDatabase() {
 
                 if (instance == null) {
                     instance = Room.databaseBuilder(
-                            context.applicationContext,
-                            PersonDatabase::class.java,
-                            "person_database"
+                        context.applicationContext,
+                        PersonDatabase::class.java,
+                        "person_database"
                     )
-                            .fallbackToDestructiveMigration()
-                            .build()
+                        .fallbackToDestructiveMigration()
+                        .build()
                     INSTANCE = instance
                 }
                 return instance

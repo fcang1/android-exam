@@ -2,10 +2,8 @@ package com.example.upraxisexam.data.repository.personlist
 
 import com.example.upraxisexam.data.database.PersonEntity
 import com.example.upraxisexam.data.util.*
-import com.example.upraxisexam.domain.model.PersonItem
 import com.example.upraxisexam.domain.repository.PersonsRepository
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.Flow
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -14,66 +12,31 @@ class PersonsRepositoryImpl(
     private val personsRemoteDataSource: PersonsRemoteDataSource
 ) : PersonsRepository, SafeAPICall {
 
-    override suspend fun getPersons(): Resource<List<PersonItem>> {
-        val personEntities = personsLocalDataSource.fetchPersons()
-        if (personEntities.count() > 0) {
-            val persons = mutableListOf<PersonItem>()
-            for (personEntity in personEntities) {
-                persons.add(
-                        PersonItem(
-                                personEntity.firstName,
-                                personEntity.lastName,
-                                personEntity.birthday,
-                                personEntity.age,
-                                personEntity.emailAddress,
-                                personEntity.mobileNo,
-                                personEntity.address,
-                                personEntity.contactPerson,
-                                personEntity.contactPersonPhoneNo,
-                        )
-                )
-            }
-            return Resource.Success(persons)
-        } else {
-            return refreshPersons()
-        }
-    }
+    override val personsFlow: Flow<List<PersonEntity>>
+        get() = personsLocalDataSource.fetchPersonsFlow()
 
-    override suspend fun refreshPersons(): Resource<List<PersonItem>> {
+    override suspend fun refreshPersons(): Resource<Any> {
         try {
             val personsResponse = callAPI {
                 personsRemoteDataSource.fetchPersons()
             }
             personsLocalDataSource.deleteAllPersons()
-            val persons = mutableListOf<PersonItem>()
+            val personEntities = mutableListOf<PersonEntity>()
             for (personResponse in personsResponse) {
-                val personItem = PersonItem(
-                        personResponse.firstName,
-                        personResponse.lastName,
-                        personResponse.birthday,
-                        getAge(personResponse.birthday),
-                        personResponse.emailAddress,
-                        personResponse.mobileNo,
-                        personResponse.address,
-                        personResponse.contactPerson,
-                        personResponse.contactPersonPhoneNo,
-                )
-                persons.add(personItem)
-                personsLocalDataSource.addPerson(
-                        PersonEntity(
-                                personItem.firstName,
-                                personItem.lastName,
-                                personItem.birthday,
-                                personItem.age,
-                                personItem.emailAddress,
-                                personItem.mobileNo,
-                                personItem.address,
-                                personItem.contactPerson,
-                                personItem.contactPersonPhoneNo
-                        )
-                )
+                personEntities.add(PersonEntity(
+                    personResponse.firstName,
+                    personResponse.lastName,
+                    personResponse.birthday,
+                    getAge(personResponse.birthday),
+                    personResponse.emailAddress,
+                    personResponse.mobileNo,
+                    personResponse.address,
+                    personResponse.contactPerson,
+                    personResponse.contactPersonPhoneNo,
+                ))
             }
-            return Resource.Success(persons)
+            personsLocalDataSource.addPersons(personEntities)
+            return Resource.Success(Any())
         } catch (e: NullAPIResponseBodyException) {
             return Resource.Error(e.message.toString())
         } catch (e: UnsuccessfulAPIResponseException) {

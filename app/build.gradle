@@ -42,10 +42,10 @@ android {
 
     variantFilter { variant ->
         def names = variant.flavors*.name
-        if ( names.contains("mock") && variant.buildType.name == 'release') {
+        if (names.contains("mock") && variant.buildType.name == 'release') {
             setIgnore(true)
         }
-        if ( names.contains("prod") && variant.buildType.name == 'debug') {
+        if (names.contains("prod") && variant.buildType.name == 'debug') {
             setIgnore(true)
         }
     }
@@ -86,6 +86,9 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+
+    // Swipe Refresh Layout
+    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
 
     def lifecycle_version = "2.3.1"
     // ViewModel

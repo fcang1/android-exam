@@ -14,6 +14,7 @@ import com.example.upraxisexam.data.repository.personlist.PersonsLocalDataSource
 import com.example.upraxisexam.data.repository.personlist.PersonsRemoteDataSourceImpl
 import com.example.upraxisexam.data.repository.personlist.PersonsRepositoryImpl
 import com.example.upraxisexam.data.util.NetworkConnectionInterceptor
+import com.example.upraxisexam.data.util.Resource
 import com.example.upraxisexam.databinding.ActivityMainBinding
 import com.example.upraxisexam.domain.usecase.personlist.GetPersonsUseCase
 import com.example.upraxisexam.domain.usecase.personlist.RefreshPersonsUseCase
@@ -24,7 +25,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 class MainActivity : AppCompatActivity() {
 
     // TODO: Use dependency injection
-    lateinit var personListViewModelFactory: PersonListViewModelFactory
+    lateinit var personListViewModel: PersonListViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,34 +50,47 @@ class MainActivity : AppCompatActivity() {
         )
         val getPersonsUseCase = GetPersonsUseCase(personsRepository)
         val refreshPersonsUseCase = RefreshPersonsUseCase(personsRepository)
-        personListViewModelFactory = PersonListViewModelFactory(
+        val personListViewModelFactory = PersonListViewModelFactory(
             getPersonsUseCase,
             refreshPersonsUseCase
         )
 
-        val personListViewModel = ViewModelProvider(
+        personListViewModel = ViewModelProvider(
             this,
             personListViewModelFactory
         ).get(PersonListViewModel::class.java)
 
         personListViewModel.resourceLiveData.observe(this) {
-            it.data?.run {
-                Log.e("MainActivity", "data $this")
-            }
-
             it.message?.run {
                 AlertDialog.Builder(this@MainActivity)
                     .setMessage(this)
                     .setPositiveButton(android.R.string.ok, null)
                     .create()
                     .show()
-
                 personListViewModel.onShowErrorMessageComplete()
             }
-        }
-        personListViewModel.getPersons()
 
-        binding.helloWorldTextView.setOnClickListener {
+            when (it) {
+                is Resource.Success, is Resource.Error -> {
+                    binding.swipeRefreshLayout.isRefreshing = false
+                }
+                is Resource.Loading -> {
+                    binding.swipeRefreshLayout.isRefreshing = true
+                }
+            }
+        }
+
+        personListViewModel.personEntitiesLiveData.observe(this) {
+            Log.e("personEntities", it.toString())
+            Log.e("personEntities count", it.count().toString())
+            if (it.isEmpty()) {
+                personListViewModel.attemptToGetPersons()
+            } else {
+                personListViewModel.attemptedToGetPersons()
+            }
+        }
+
+        binding.swipeRefreshLayout.setOnRefreshListener {
             personListViewModel.refreshPersons()
         }
     }

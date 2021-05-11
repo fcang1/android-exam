@@ -1,10 +1,11 @@
 package com.example.upraxisexam.data.repository.personlist
 
 import com.example.upraxisexam.data.database.PersonEntity
+import kotlinx.coroutines.flow.Flow
 
 interface PersonsLocalDataSource {
 
-    suspend fun addPerson(personEntity: PersonEntity)
+    suspend fun addPersons(personEntities: List<PersonEntity>)
     suspend fun deleteAllPersons()
-    suspend fun fetchPersons(): List<PersonEntity>
+    fun fetchPersonsFlow(): Flow<List<PersonEntity>>
 }
