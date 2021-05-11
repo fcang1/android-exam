@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="personEntity"
+            type="com.example.upraxisexam.data.database.PersonEntity" />
+
+        <variable
+            name="personListListener"
+            type="com.example.upraxisexam.presentation.personlist.PersonListListener" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?selectableItemBackground"
+        android:onClick="@{() -> personListListener.onClick(personEntity)}"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/full_name_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+            app:fullNameText="@{personEntity}"
+            tools:text="Vincent Brooks" />
+
+        <TextView
+            android:id="@+id/mobile_no_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
+            app:mobileNoText="@{personEntity}"
+            tools:text="09123456789" />
+
+    </LinearLayout>
+</layout>
