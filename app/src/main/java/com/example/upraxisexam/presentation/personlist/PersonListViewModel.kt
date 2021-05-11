@@ -31,9 +31,9 @@ class PersonListViewModel(
         initialGetPersonFinished = true
     }
 
-    fun onShowErrorMessageComplete() {
-        resourceMutableLiveData.value = Resource.Success(Any())
-    }
+//    fun onShowErrorMessageComplete() {
+//        resourceMutableLiveData.value = Resource.Success(Any())
+//    }
 
     fun refreshPersons() {
         viewModelScope.launch {

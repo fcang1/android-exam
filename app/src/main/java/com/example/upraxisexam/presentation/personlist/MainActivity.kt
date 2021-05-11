@@ -28,6 +28,8 @@ class MainActivity : AppCompatActivity() {
     // TODO: Use dependency injection
     lateinit var personListViewModel: PersonListViewModel
 
+    private var alertDialog: AlertDialog? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val binding =
@@ -87,11 +89,12 @@ class MainActivity : AppCompatActivity() {
                     binding.swipeRefreshLayout.isRefreshing = false
                     binding.errorMessageLayout.visibility = View.VISIBLE
                     it.message?.run {
-                        AlertDialog.Builder(this@MainActivity)
+                        alertDialog?.dismiss()
+                        alertDialog = AlertDialog.Builder(this@MainActivity)
                                 .setMessage(this)
                                 .setPositiveButton(android.R.string.ok, null)
                                 .create()
-                                .show()
+                        alertDialog?.show()
 //                        personListViewModel.onShowErrorMessageComplete()
                     }
                 }
@@ -110,5 +113,11 @@ class MainActivity : AppCompatActivity() {
                 binding.recyclerView.visibility = View.VISIBLE
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+//        Log.e("MainActivity", "onDestroy")
+        alertDialog?.dismiss()
     }
 }
