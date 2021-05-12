@@ -5,9 +5,14 @@ import com.example.upraxisexam.data.database.PersonEntity
 import com.example.upraxisexam.data.util.Resource
 import com.example.upraxisexam.domain.usecase.personlist.GetPersonsUseCase
 import com.example.upraxisexam.domain.usecase.personlist.RefreshPersonsUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class PersonListViewModel(
+@HiltViewModel
+class PersonListViewModel
+@Inject
+constructor(
     getPersonsUseCase: GetPersonsUseCase,
     private val refreshPersonsUseCase: RefreshPersonsUseCase
 ) : ViewModel() {

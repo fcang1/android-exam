@@ -3,6 +3,7 @@ plugins {
     id 'kotlin-android'
     id 'kotlin-kapt'
     id 'kotlin-parcelize'
+    id 'dagger.hilt.android.plugin'
 }
 
 android {
@@ -111,4 +112,12 @@ dependencies {
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
     // Gson Converter
     implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
+
+    // Hilt
+    implementation "com.google.dagger:hilt-android:$hilt_version"
+    kapt "com.google.dagger:hilt-compiler:$hilt_version"
+
+    def activity_version = "1.2.3"
+    // Activity
+    implementation "androidx.activity:activity-ktx:$activity_version"
 }
